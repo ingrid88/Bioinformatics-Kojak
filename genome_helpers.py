@@ -181,7 +181,7 @@ def split_into_frames(starts,stops):
         s = np.array([-1] + [start for start in starts if (start - i) % 3 == 0])
         e = [end for end in stops if (end - i) % 3 == 0]
         indices = np.searchsorted(e,s)
-        res += [(s[index],e[ind]+3,i) for index,ind in enumerate(indices)]
+        res += [(s[index],e[ind]+3,i) for index,ind in enumerate(indices[:-1])]
     return res
 
 def process_genome(genome):
@@ -191,7 +191,7 @@ def process_genome(genome):
     pairs = [pair for pair in split_into_frames(starts,stops) if pair[0] !=-1]
     pairs = [pair for pair in pairs if pair[1] - pair[0] > 500]
     return pairs
-    
+
 
 def genome_end_genes(genome):
     """input:
