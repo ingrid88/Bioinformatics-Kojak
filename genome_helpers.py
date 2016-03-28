@@ -39,6 +39,25 @@ def load_file2(url,genome=True):
     genome = ''.join(data[1::])
     return [title,genome]
 
+
+## load all Data
+def all_data(staph_url,staph_annot):
+    d = {}
+    for i in range(len(staph_url)):
+        title, genome = load_file2(staph_url[i])
+        _, annot = load_file2(staph_annot[i])
+        d[i] = [load_file(staph_url[i]),load_file(staph_annot[i]),title]
+        print(title)
+    return d
+
+def find_regions_df(annot,data):
+    region = find_regions(annot,data)
+    regions = pd.DataFrame(region)
+    regions.columns = [["state","start","end","seq"]]
+#     print("Built table of sequences for each state in genome...")
+    return regions
+
+
 def segment_genome(data_string,split_size):
     """input: genome data string (data_string) and then size we should split the data (split_size)
     output: array split by specified split_size"""
