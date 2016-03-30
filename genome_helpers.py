@@ -50,6 +50,16 @@ def all_data(staph_url,staph_annot):
         print(title)
     return d
 
+def nucleotide_frequency(seq):
+    '''Count the occurrences of characters in "seq".'''
+    counts = {'A':0,'C':0,'G':0,'T':0}
+    for c in seq:
+        counts[c] +=1
+    total = sum(list(counts.values()))
+    for key, value in counts.items():
+        counts[key] = value / total
+    return counts
+
 def find_regions_df(annot,data):
     region = find_regions(annot,data)
     regions = pd.DataFrame(region)
@@ -82,7 +92,7 @@ def gene_label_dir(annotation,direction="C"):
              for line in annotation]
     return label
 
-def nucleotide_frequency(seq):
+def ide_frequency(seq):
     '''Count the occurrences of characters in "seq".'''
     counts = {'A':0,'C':0,'G':0,'T':0}
     for c in seq:
@@ -145,10 +155,27 @@ def reverse_complement(genome):
 def tri_split(seq):
     return ''.join([char+' ' if (i+1) % 3 == 0 else char for i,char in enumerate(seq)]).split()
 
+
+codon_map = {"I":["ATT", "ATC", "ATA"],"L":["CTT", "CTC", "CTA", "CTG", "TTA","TTG"],
+          "V":["GTT", "GTC", "GTA", "GTG"],"F":["TTT", "TTC"],"M":["ATG"],"C":["TGT", "TGC"],
+          "A":["GCT", "GCC", "GCA", "GCG"],"G":["GGT", "GGC", "GGA", "GGG"],
+          "P":["CCT", "CCC", "CCA", "CCG"],
+          "T":["ACT", "ACC", "ACA", "ACG"],"S":["TCT", "TCC", "TCA", "TCG", "AGT", "AGC"],
+          "Y":["TAT", "TAC"],"W":["TGG"],"Q":["CAA", "CAG"],"N":["AAT", "AAC"],"H":["CAT", "CAC"],
+             "E":["GAA", "GAG"],"D":["GAT", "GAC"],"K":["AAA", "AAG"],
+             "R":["CGT", "CGC", "CGA", "CGG","AGA", "AGG"],"X":["TAA", "TAG", "TGA"]}
+def invert(d):
+    return dict( (v,k) for k in d for v in d[k] )
+codon_to_aa = invert(codon_map)
+
 def codonToAA(codon_list):
+    # print(codon_list)
+    # print(codon_to_aa)
     aa_seq = ''.join([codon_to_aa[codon] for codon in codon_list])
     return aa_seq
 
+
+aa = ["I","L","V","F","M","C","A","G","P","T","S","Y","W","Q","N","H","E","D","K","R","X"]
 def aa_frequency(seq):
     """Count the occurrences of amino acids in "seq"."""
     zeros = [0]*len(aa)
@@ -212,9 +239,25 @@ def process_genome(genome):
     return pairs
 
 
-def genome_end_genes(genome):
-    """input:
-    output: """
-    starts, stops = closest_inframe_start(genome)
-    pairs = [pair for pair in closest_start_end(starts,stops) if pair[0] !=-1]
-    return pairs
+def codon_frequency(codon_list):
+    d = codons()
+    for codon in codon_list:
+        d[codon] += 1
+    total = sum(list(d.values()))
+    for key, value in d.items():
+        d[key] = value / total
+    return d
+
+def codons():
+    d = {}
+    for first in ['A','T','G','C']:
+        for second in ['A','T','G','C']:
+            for third in ['A','T','G','C']:
+                d[first+second+third] = 0
+    return d
+# def genome_end_genes(genome):
+#     """input:
+#     output: """
+#     starts, stops = closest_inframe_start(genome)
+#     pairs = [pair for pair in closest_start_end(starts,stops) if pair[0] !=-1]
+#     return pairs
